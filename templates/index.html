@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vessel Information</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 4px #fff;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 12px;
+            width: 300px;
+            margin-right: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.3s ease-in-out;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        td {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover td {
+            background-color: #eaf2f8;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .button-group {
+            margin-top: 10px;
+        }
+        .button {
+            padding: 10px 15px;
+            margin-right: 5px;
+            border: none;
+            color: white;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .button:hover {
+            background: linear-gradient(135deg, #66a6ff, #89f7fe);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .plot-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        .plot {
+            width: 45%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .plot img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+            font-size: 1.8rem;
+            text-shadow: 1px 1px 2px #fff;
+        }
+        p {
+            font-size: 1rem;
+            margin: 5px 0;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+    <h1>Vessel Information</h1>
+
+    <!-- Form to input MMSI -->
+    <form method="POST">
+        <label for="mmsi">Enter MMSI:</label>
+        <input type="text" id="mmsi" name="mmsi" required>
+
+        <div class="button-group">
+            <!-- Fetch Data Button -->
+            <button type="submit" class="button">Fetch Data</button>
+
+            <!-- Show All Ship Info Button -->
+            <a href="https://www.aishub.net/vessels" target="_blank" class="button">Show All Ship Info</a>
+        </div>
+    </form>
+
+    <!-- Display vessel information if available -->
+    {% if vessel_info %}
+        {% if vessel_info.error %}
+            <p class="error">{{ vessel_info.error }}</p>
+        {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Name</td>
+                        <td>{{ vessel_info['name'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>MMSI</td>
+                        <td>{{ vessel_info['mmsi'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>IMO</td>
+                        <td>{{ vessel_info['imo'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Country ISO</td>
+                        <td>{{ vessel_info['country_iso'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td>{{ vessel_info['type'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Specific Type</td>
+                        <td>{{ vessel_info['type_specific'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Course</td>
+                        <td>{{ vessel_info['course'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Speed</td>
+                        <td>{{ vessel_info['speed'] }} knots</td>
+                    </tr>
+                    <tr>
+                        <td>Navigation Status</td>
+                        <td>{{ vessel_info['navigation_status'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Destination</td>
+                        <td>{{ vessel_info['destination'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>ETA (UTC)</td>
+                        <td>{{ vessel_info['eta_UTC'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Last Position (UTC)</td>
+                        <td>{{ vessel_info['last_position_UTC'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Latitude</td>
+                        <td>{{ vessel_info['lat'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Longitude</td>
+                        <td>{{ vessel_info['lon'] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Display the plots for speed and course -->
+            <div class="plot-container">
+                <div class="plot">
+                    <h3>Ship Speed</h3>
+                    <img src="{{ speed_plot_url }}" alt="Speed Plot">
+                </div>
+                <div class="plot">
+                    <h3>Ship Course</h3>
+                    <img src="{{ course_plot_url }}" alt="Course Plot">
+                </div>
+            </div>
+
+            <!-- Display weather information -->
+            <h2>Current Weather Near Ship</h2>
+            <p>Temperature: {{ weather_info['temp'] }}°C</p>
+            <p>Weather: {{ weather_info['description'] }}</p>
+            <p>Wind Speed: {{ weather_info['wind_speed'] }} m/s</p>
+
+            <!-- Map container -->
+            <div id="map"></div>
+        {% endif %}
+    {% endif %}
+
+    <!-- Leaflet JS for map -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
